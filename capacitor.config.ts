@@ -6,7 +6,9 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
+    cleartext: true,
     allowNavigation: [
+      '*',
       '*.tmdb.org',
       '*.themoviedb.org',
       '*.ythd.org',
@@ -18,11 +20,16 @@ const config: CapacitorConfig = {
       '*.2embed.cc',
       '*.smashystream.com',
       '*.rive.stream',
-      '*.embed.su'
+      '*.embed.su',
+      '*.player4u.xyz',
+      '*.moviee.tv',
+      '*.superembed.stream',
+      '*.vidsrc.pm'
     ]
   },
   android: {
-    allowMixedContent: true
+    allowMixedContent: true,
+    backgroundColor: '#050507'
   }
 };
 
