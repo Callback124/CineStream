@@ -1,0 +1,6 @@
+{
+  "name": "CineStream - Movie & TV Series Streaming",
+  "description": "A modern streaming web application featuring TMDB media exploration, multi-server video player switching, TV season/episode navigation, and watchlist management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
