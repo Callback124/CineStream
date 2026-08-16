@@ -1,4 +1,4 @@
-name: Build Android APK (v2.0.0)
+name: Build CineStream APK
 
 on:
   push:
@@ -6,19 +6,10 @@ on:
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
-    inputs:
-      version_name:
-        description: 'Version Name (e.g. 2.0.0)'
-        required: false
-        default: '2.0.0'
-      version_code:
-        description: 'Version Code (integer)'
-        required: false
-        default: '2'
 
 jobs:
   build-apk:
-    name: Build CineStream APK v2.0
+    name: Generate APK v2.0
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +20,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: 3. Setup Java 21 (Temurin)
         uses: actions/setup-java@v4
@@ -42,33 +32,23 @@ jobs:
         with:
           packages: 'platforms;android-35 build-tools;35.0.0'
 
-      - name: 5. Install Dependencies
+      - name: 5. Install NPM Packages
         run: |
-          npm install --legacy-peer-deps
+          npm install --no-audit --no-fund --legacy-peer-deps
+          npm install --save @capacitor/core @capacitor/android @capacitor/cli --legacy-peer-deps
 
-      - name: 6. Build Web Assets (Vite)
+      - name: 6. Build Web Dist
         run: npm run build
 
-      - name: 7. Initialize & Sync Capacitor Android
+      - name: 7. Init & Sync Capacitor Android
         run: |
           rm -rf android
-          npx cap add android
-          npx cap sync android
+          npx @capacitor/cli add android
+          npx @capacitor/cli sync android
 
-      - name: 8. Configure Android Permissions & Gradle
+      - name: 8. Fix Kotlin Duplicate Classes Conflict
         run: |
-          echo "Configuring Android permissions and versioning..."
-          
-          # Allow internet, cleartext network traffic, and fullscreen hardware acceleration
-          MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
-          if [ -f "$MANIFEST_FILE" ]; then
-            sed -i '/<application/ s/>/ android:usesCleartextTraffic="true" android:hardwareAccelerated="true">/' "$MANIFEST_FILE"
-          fi
-
-          # Gradle configuration: Exclude Kotlin duplicate classes & set version codes
-          VERSION_NAME="${{ github.event.inputs.version_name || '2.0.0' }}"
-          VERSION_CODE="${{ github.event.inputs.version_code || '2' }}"
-
+          echo "Injecting Kotlin conflict fix in Gradle..."
           cat << 'EOF' >> android/app/build.gradle
 
           configurations.all {
@@ -77,20 +57,16 @@ jobs:
           }
           EOF
 
-          # Update Version Code and Name in android/app/build.gradle
-          sed -i "s/versionCode 1/versionCode $VERSION_CODE/g" android/app/build.gradle
-          sed -i "s/versionName \"1.0\"/versionName \"$VERSION_NAME\"/g" android/app/build.gradle
-
       - name: 9. Build Debug APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug -x lint -x test -x check --no-daemon --stacktrace
+          ./gradlew assembleDebug -x lint -x test -x check --no-daemon
 
       - name: 10. Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CineStream-v2.0.0-Debug-APK
+          name: CineStream-v2-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
