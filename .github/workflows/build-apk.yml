@@ -1,0 +1,66 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-android-apk:
+    name: Build & Export APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 3. Setup Java 17 & 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 4. Install Dependencies
+        run: |
+          npm install --no-audit --no-fund --legacy-peer-deps
+          npm install --save @capacitor/core @capacitor/android @capacitor/cli --legacy-peer-deps
+
+      - name: 5. Build Web Project (Vite)
+        run: npm run build
+
+      - name: 6. Setup Capacitor Android & Android SDK
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Adding Android platform..."
+            npx @capacitor/cli add android
+          fi
+          echo "Setting up local.properties with Android SDK path..."
+          echo "sdk.dir=${ANDROID_HOME:-/usr/local/lib/android/sdk}" > android/local.properties
+          echo "android.useAndroidX=true" >> android/gradle.properties
+          echo "android.enableJetifier=true" >> android/gradle.properties
+          echo "Syncing web assets to Android..."
+          npx @capacitor/cli sync android
+
+      - name: 7. Setup Gradle Environment
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 8. Build Debug APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: 9. Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CineStream-Debug-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
