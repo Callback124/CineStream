@@ -46,13 +46,24 @@ jobs:
           npx @capacitor/cli add android
           npx @capacitor/cli sync android
 
-      - name: 8. Build Debug APK
+      - name: 8. Fix Kotlin Duplicate Classes Conflict
+        run: |
+          echo "Fixing Kotlin stdlib duplicate classes in Gradle..."
+          cat << 'EOF' >> android/app/build.gradle
+
+          configurations.all {
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          EOF
+
+      - name: 9. Build Debug APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug -x lint -x test -x check --no-daemon
 
-      - name: 9. Upload APK to Artifacts
+      - name: 10. Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: CineStream-Debug-APK
