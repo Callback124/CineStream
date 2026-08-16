@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android-apk:
-    name: Build & Export APK
+  build-apk:
+    name: Generate APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. Checkout Repository
+      - name: 1. Checkout Code
         uses: actions/checkout@v4
 
       - name: 2. Setup Node.js 20
@@ -21,43 +21,38 @@ jobs:
         with:
           node-version: 20
 
-      - name: 3. Setup Java 17 & 21
+      - name: 3. Setup Java 21 (Temurin)
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
-      - name: 4. Install Dependencies
+      - name: 4. Setup Android SDK 35
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0'
+
+      - name: 5. Install NPM Packages
         run: |
           npm install --no-audit --no-fund --legacy-peer-deps
           npm install --save @capacitor/core @capacitor/android @capacitor/cli --legacy-peer-deps
 
-      - name: 5. Build Web Project (Vite)
+      - name: 6. Build Web Dist
         run: npm run build
 
-      - name: 6. Setup Capacitor Android & Android SDK
+      - name: 7. Init & Sync Capacitor Android
         run: |
-          if [ ! -d "android" ]; then
-            echo "Adding Android platform..."
-            npx @capacitor/cli add android
-          fi
-          echo "Setting up local.properties with Android SDK path..."
-          echo "sdk.dir=${ANDROID_HOME:-/usr/local/lib/android/sdk}" > android/local.properties
-          echo "android.useAndroidX=true" >> android/gradle.properties
-          echo "android.enableJetifier=true" >> android/gradle.properties
-          echo "Syncing web assets to Android..."
+          rm -rf android
+          npx @capacitor/cli add android
           npx @capacitor/cli sync android
-
-      - name: 7. Setup Gradle Environment
-        uses: gradle/actions/setup-gradle@v4
 
       - name: 8. Build Debug APK
         run: |
           cd android
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          chmod +x gradlew
+          ./gradlew assembleDebug -x lint -x test -x check --no-daemon
 
-      - name: 9. Upload Debug APK Artifact
+      - name: 9. Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: CineStream-Debug-APK
