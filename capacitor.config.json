@@ -1,0 +1,6 @@
+{
+  "appId": "com.cinestream.app",
+  "appName": "CineStream",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
