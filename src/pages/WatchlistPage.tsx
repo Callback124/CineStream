@@ -115,9 +115,9 @@ export const WatchlistPage: React.FC = () => {
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Play Button Overlay */}
+                      {/* Detail Page Link & Play Button Overlay */}
                       <Link
-                        to={`/watch/${item.type}/${item.id}`}
+                        to={`/detail/${item.type}/${item.id}`}
                         className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 border border-white/20 text-white flex items-center justify-center shadow-lg shadow-indigo-600/50 hover:scale-110 transition-transform">
@@ -127,9 +127,11 @@ export const WatchlistPage: React.FC = () => {
                     </div>
 
                     <div className="p-3 space-y-1 bg-white/[0.02]">
-                      <h4 className="text-xs sm:text-sm font-bold text-white truncate" title={item.title}>
-                        {item.title}
-                      </h4>
+                      <Link to={`/detail/${item.type}/${item.id}`}>
+                        <h4 className="text-xs sm:text-sm font-bold text-white hover:text-indigo-400 truncate" title={item.title}>
+                          {item.title}
+                        </h4>
+                      </Link>
                       <div className="flex items-center justify-between text-[11px] text-white/50">
                         <span className="capitalize text-indigo-400 font-medium">{item.type}</span>
                         <span className="text-amber-300">★ {item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}</span>
@@ -209,8 +211,8 @@ export const WatchlistPage: React.FC = () => {
                       <Link
                         to={
                           item.type === 'tv' && item.season && item.episode
-                            ? `/watch/tv/${item.id}/${item.season}/${item.episode}`
-                            : `/watch/${item.type}/${item.id}`
+                            ? `/player/tv/${item.id}/${item.season}/${item.episode}`
+                            : `/player/${item.type}/${item.id}`
                         }
                         className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
@@ -222,7 +224,9 @@ export const WatchlistPage: React.FC = () => {
 
                     <div className="p-3.5 space-y-2 bg-white/[0.02]">
                       <div>
-                        <h4 className="text-sm font-bold text-white truncate">{item.title}</h4>
+                        <Link to={`/detail/${item.type}/${item.id}`}>
+                          <h4 className="text-sm font-bold text-white hover:text-indigo-400 truncate">{item.title}</h4>
+                        </Link>
                         <p className="text-xs text-white/50 mt-0.5">
                           {item.type === 'tv' && item.season
                             ? `Season ${item.season} • Episode ${item.episode || 1} ${item.episodeName ? `(${item.episodeName})` : ''}`
@@ -230,17 +234,25 @@ export const WatchlistPage: React.FC = () => {
                         </p>
                       </div>
 
-                      <Link
-                        to={
-                          item.type === 'tv' && item.season && item.episode
-                            ? `/watch/tv/${item.id}/${item.season}/${item.episode}`
-                            : `/watch/${item.type}/${item.id}`
-                        }
-                        className="w-full py-2 rounded-xl bg-gradient-to-r from-indigo-600/20 to-purple-600/20 hover:from-indigo-600 hover:to-purple-600 text-indigo-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-indigo-500/30"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-current" />
-                        <span>Resume Playback</span>
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={
+                            item.type === 'tv' && item.season && item.episode
+                              ? `/player/tv/${item.id}/${item.season}/${item.episode}`
+                              : `/player/${item.type}/${item.id}`
+                          }
+                          className="flex-1 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-indigo-600/30"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <span>Resume</span>
+                        </Link>
+                        <Link
+                          to={`/detail/${item.type}/${item.id}`}
+                          className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white font-semibold text-xs border border-white/10"
+                        >
+                          Details
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}

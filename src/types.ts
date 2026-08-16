@@ -87,7 +87,7 @@ export interface StreamSource {
   name: string;
   badge?: string;
   quality?: string;
-  getUrl: (id: string | number, type: MediaType, season?: number, episode?: number) => string;
+  getUrl: (id: string | number, type: MediaType, season?: number, episode?: number) => string | Promise<string>;
 }
 
 export interface WatchHistoryItem {

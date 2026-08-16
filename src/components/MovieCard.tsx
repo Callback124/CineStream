@@ -11,7 +11,7 @@ interface MovieCardProps {
   priority?: boolean;
 }
 
-export const MovieCard: React.FC<MovieCardProps> = ({ item, onOpenDetails, priority = false }) => {
+export const MovieCard: React.FC<MovieCardProps> = ({ item, priority = false }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { isInWatchlist, toggleWatchlist } = useWatch();
@@ -29,16 +29,15 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, onOpenDetails, prior
     : getImageUrl(item.poster_path, 'w500');
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // If user clicked inside action buttons, let them handle it
     if ((e.target as HTMLElement).closest('button')) return;
-    navigate(`/watch/${type}/${item.id}`);
+    navigate(`/detail/${type}/${item.id}`);
   };
 
   return (
     <div
       id={`movie-card-${type}-${item.id}`}
       onClick={handleCardClick}
-      className="group relative flex-shrink-0 w-40 sm:w-48 md:w-52 lg:w-56 cursor-pointer select-none rounded-2xl overflow-hidden bg-white/[0.03] backdrop-blur-md border border-white/[0.08] hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-indigo-950/50"
+      className="group relative flex-shrink-0 w-36 sm:w-44 md:w-48 lg:w-52 cursor-pointer select-none rounded-2xl overflow-hidden bg-white/[0.03] backdrop-blur-md border border-white/[0.08] hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-indigo-950/50 active:scale-95"
     >
       {/* Poster Aspect Ratio Container */}
       <div className="relative aspect-[2/3] w-full overflow-hidden bg-[#0c0c14]">
@@ -88,15 +87,15 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, onOpenDetails, prior
           )}
         </div>
 
-        {/* Hover Action Buttons Overlay */}
+        {/* Hover / Touch Quick Action Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
           <Link
-            to={`/watch/${type}/${item.id}`}
+            to={`/detail/${type}/${item.id}`}
             onClick={(e) => e.stopPropagation()}
-            className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border border-white/20 text-white flex items-center justify-center shadow-lg shadow-indigo-600/50 hover:scale-110 transition-transform"
-            title="Watch Now"
+            className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 border border-white/20 text-white flex items-center justify-center shadow-lg shadow-indigo-600/50 hover:scale-110 active:scale-95 transition-transform"
+            title="View Details & Play"
           >
-            <Play className="w-6 h-6 fill-white ml-0.5" />
+            <Play className="w-5 h-5 fill-white ml-0.5" />
           </Link>
 
           <div className="flex items-center gap-2">
@@ -115,25 +114,21 @@ export const MovieCard: React.FC<MovieCardProps> = ({ item, onOpenDetails, prior
               {inList ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             </button>
 
-            {onOpenDetails && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenDetails(item);
-                }}
-                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white backdrop-blur-md border border-white/15 transition-all"
-                title="View Details"
-              >
-                <Info className="w-4 h-4" />
-              </button>
-            )}
+            <Link
+              to={`/detail/${type}/${item.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white backdrop-blur-md border border-white/15 transition-all"
+              title="Details & Episodes"
+            >
+              <Info className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Card Info Bottom */}
       <div className="p-3 bg-white/[0.02] backdrop-blur-md flex flex-col justify-between">
-        <h3 className="text-xs sm:text-sm font-semibold text-white/90 truncate group-hover:text-indigo-400 transition-colors" title={title}>
+        <h3 className="text-xs sm:text-sm font-bold text-white/90 truncate group-hover:text-indigo-400 transition-colors" title={title}>
           {title}
         </h3>
         <div className="flex items-center justify-between text-[11px] text-white/50 mt-1">

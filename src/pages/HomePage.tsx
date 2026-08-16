@@ -99,8 +99,8 @@ export const HomePage: React.FC = () => {
                   key={`${item.type}-${item.id}`}
                   to={
                     item.type === 'tv' && item.season && item.episode
-                      ? `/watch/tv/${item.id}/${item.season}/${item.episode}`
-                      : `/watch/${item.type}/${item.id}`
+                      ? `/player/tv/${item.id}/${item.season}/${item.episode}`
+                      : `/player/${item.type}/${item.id}`
                   }
                   className="flex-shrink-0 w-64 sm:w-72 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden group hover:border-indigo-500/50 transition-all hover:scale-[1.02] shadow-xl"
                 >

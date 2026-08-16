@@ -226,3 +226,14 @@ export async function getTVSeasonDetails(seriesId: string | number, seasonNumber
 export function getGenres(type: MediaType): Genre[] {
   return type === 'movie' ? MOVIE_GENRES : TV_GENRES;
 }
+
+// 9. Get IMDb ID
+export async function getImdbId(id: string | number, type: MediaType): Promise<string | null> {
+  const data = await tmdbFetch<{ imdb_id?: string; external_ids?: { imdb_id?: string } }>(
+    type === 'movie' ? `/movie/${id}` : `/tv/${id}/external_ids`
+  );
+  if (data?.imdb_id) return data.imdb_id;
+  if (data?.external_ids?.imdb_id) return data.external_ids.imdb_id;
+  return null;
+}
+
